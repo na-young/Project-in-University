@@ -1,0 +1,88 @@
+# DIAMONDS에서 Carat 및 가격은 정규분포를 따르는지 적절한 그림을 그리고 정규성을 검정해보자
+diamond<-read.csv('diamonds.csv')
+
+shapiro.test(sample(c(diamond$carat),
+                size=4000,replace=F))
+##p.value<2.2e-16
+  p.value<0.05이므로 귀무가설을 기각한다.
+  따라서 정규분포를 따른다고 할 수 없다.
+  
+shapiro.test(sample(c(diamond$price),
+                size=4000,replace=F))
+##p-value < 2.2e-16 
+  p.value<0.05이므로 귀무가설을 기각한다.
+  따라서 정규분포를 따른다고 할 수 없다.
+
+##Carat과 가격은 정규분포를 따른다고 할 수 없다
+
+par(mfrow=c(2,1))
+with(diamond,qqnorm(carat,main='qqplot of carat'))
+with(diamond,qqline(carat,col='violet'))
+
+with(diamond,qqnorm(price,main='qqplot of price'))
+with(diamond,qqline(price,col='skyblue'))
+
+# color(J vs D)에 따라 가격의 차이가 있는지 비교하는 적절한 그림을 그리고 검정해보자. 
+library(dplyr)
+
+dat1<-diamond %>%filter(color==c('J','D'))
+summary(data=dat1,price~color)
+
+dat_J<-diamond %>%filter(color=='J')
+dat_D<-diamond %>%filter(color=='D')
+
+shapiro.test(dat_J$price) 
+##p-value < 2.2e-16
+  따라서 정규분포를 따른다고 할 수 없다.
+
+shapiro.test(sample(c(dat_D$price),
+               size=4000,replace=F))
+##p-value < 2.2e-16
+ 따라서 정규분포를 따른다고 할 수 없다.
+ 
+ 
+# “Quality of the cut”이 Good일 경우 Fair일 경우에 비해 가격이 더 높은지 적절한 그림을 그리고 검정하여라. 
+dat_good<-diamond %>%  filter(cut=='Good')
+dat_fair<-diamond %>%  filter(cut=='Fair’)
+
+var.test(dat_good$price,dat_fair$price)
+##p-value=0.1028 ->이분산
+
+t.test(dat_good$price,dat_fair$price,alter='greater') 
+##p-value=1
+ 따라서 Good일 경우 그렇지 않은 경우(Fair)에 
+ 비해 가격이 더 높다고 할 수 있다.
+
+boxplot(log(dat_good$price),log(dat_fair$price),
+        main='Cut&Price',col=c('pink','yellow’),
+        names=c(‘Good’,’Fair’))
+
+# Carat 과 x, y, z 변수간의 산점도를 각각 그리고 상관계수를 계산하고 검정해보자.
+library(dplyr)
+
+par(mfrow=c(1,3))
+
+plot(diamond[c(2,9)],main='X_carat’,
+      col='violet’) 
+##carat,x = 0.9750942(양의관계)
+
+plot(diamond[c(2,10)],main='Y_carat’,
+      col='skyblue’) 
+##carat,y = 0.9517222(양의관계)
+
+plot(diamond[c(2,11)],main='Z_carat’,
+      col='antiquewhite’)
+##carat,z = 0.9533874(양의관계)
+
+cor.test(diamond$carat,diamond$X) 
+ ##p-value < 2.2e-16
+   두 변수간의 상관이 있다고 할 수 없다.
+
+cor.test(diamond$carat,diamond$y) 
+ ##p-value < 2.2e-16
+  두 변수간의 상관이 있다고 할 수 없다.
+  
+cor.test(diamond$carat,diamond$z)
+ ##p-value < 2.2e-16
+  두 변수간의 상관이 있다고 할 수 없다.
+  
