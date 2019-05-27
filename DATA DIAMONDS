@@ -1,0 +1,64 @@
+# DIAMONDS 데이터에서 마지막 5개 관찰치를 보자
+tail(iris,5) 
+
+# 꽃받침(sepal) 길이(X)와 꽃잎(petal) 길이(Y)에 대해서 산점도를 그려 시각화해보자
+# 추가적으로 sepecies별로 색을 각각 표현하고 회귀선을 추가해보자
+data1<-subset(iris,select=c('Sepal.Length','Petal.Length','Species'))
+
+data_setosa<-subset(data1,data1$'Species'=='setosa')
+data_versicolor<-subset(data1,data1$'Species'=='versicolor')
+data_virginica<-subset(data1,data1$'Species'=='virginica')
+
+plot(Petal.Length~Sepal.Length,data=data1,col=c('violet','skyblue','grey')[data1$Species])
+abline(lm(Petal.Length~Sepal.Length,data=data_setosa),col='violet')
+abline(lm(Petal.Length~Sepal.Length,data=data_versicolor),col='skyblue')
+abline(lm(Petal.Length~Sepal.Length,data=data_virginica),col='grey')
+
+# species별 Sepal.Length의 중위수를 알아보자(use function : by)
+by(iris[,'Sepal.Length'],iris['Species'],median) #median of Sepal.Length by Species
+
+median(data_setosa$Sepal.Length)
+
+#Species별 꽃잎 길이에 대해서 사분위수 값을 얻고 boxplot로 시각화해보자. 
+summary(iris)
+data_setosa2<-iris%>%filter(Species=="setosa")
+data_versicolor2<-iris%>%filter(Species=="versicolor")
+data_virginica2<-iris%>%filter(Species=="virginica")
+
+par(mfrow=c(1,3))
+
+fivenum(data_setosa2$Petal.Width)
+boxplot(data_setosa2$Petal.Width,main="SETOSA'S PETAL.WIDTH",col='violet')
+
+fivenum(data_versicolor2$Petal.Width)
+boxplot(data_versicolor2$Petal.Width,main="VERSICOLOR'S PETAL.WIDTH",col='skyblue')
+
+fivenum(data_virginica2$Petal.Width)
+boxplot(data_virginica2$Petal.Width,main="VERSICOLOR'S PETAL.WIDTH",col='gray')
+
+# Species별 꽃잎 넓이(petal.width)에 대해서 density 을 추가한 histogram을 그려보자
+par(mfrow=c(1,3))
+
+hist(data_setosa2$Petal.Width,col='violet')
+lines(density(data_setosa2$Petal.Width))
+ 
+hist(data_versicolor2$Petal.Width,col='skyblue')
+lines(density(data_versicolor2$Petal.Width))
+
+hist(data_virginica2$Petal.Width,col='gray')
+lines(density(data_virginica2$Petal.Width))
+
+# mfrow을 사용하여 Species별 꽃잎 넓이에 대해서 qqline 을 추가한 QQ-plot을 그리고 정규성을 검정해보자
+par(mfrow=c(1,3))
+
+with(data_setosa2,shapiro.test(Petal.Width)) #p-value<0.05/H0기각/정규분포를 따르지 않는다.
+with(data_setosa2,qqnorm(Petal.Width,col='violet'))
+with(data_setosa2,qqline(Petal.Width,col='violet'))
+
+with(data_versicolor2,shapiro.test(Petal.Width))
+with(data_versicolor2,qqnorm(Petal.Width,col='skyblue'))
+with(data_versicolor2,qqline(Petal.Width,col='skyblue'))
+
+with(data_virginica2,shapiro.test(Petal.Width))
+with(data_virginica2,qqnorm(Petal.Width,col='gray'))
+with(data_virginica2,qqline(Petal.Width,col='gray'))
